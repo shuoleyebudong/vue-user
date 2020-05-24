@@ -67,6 +67,7 @@ export default {
               type: "warning"
             });
           } else {
+            sessionStorage.setItem("username", this.form.username);
             this.$router.push("/home");
             this.$message({
               message: "恭喜你，这是一条成功消息",
