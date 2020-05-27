@@ -3,7 +3,7 @@
     <!-- 头部区域 -->
     <el-header>
       <div class="header_left">
-        <img src="../../assets/labi.jpg" alt />
+        <img src="../../assets/logo.png" alt />
         <span>用户后台管理系统</span>
       </div>
       <div class="header_right">
