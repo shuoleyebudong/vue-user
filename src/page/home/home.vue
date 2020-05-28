@@ -101,7 +101,7 @@ export default {
       isCollapse: false,
       items: [
         {
-          icon: "el-icon-user-solid",
+          icon: "el-icon-s-data",
           index: "dashboard",
           title: "首页"
         },

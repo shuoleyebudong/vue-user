@@ -9,6 +9,9 @@ import Table from '../page/table/table.vue'
 import NO from '../page/404.vue'
 import NOPower from '../page/401.vue'
 
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 Vue.use(Router)
 
 const router = new Router({
@@ -62,6 +65,7 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  NProgress.start()
   if (to.path === '/login') {
     next()
   } else {
@@ -72,6 +76,10 @@ router.beforeEach((to, from, next) => {
       next()
     }
   }
+})
+
+router.afterEach(() => {
+  NProgress.done()
 })
 
 export default router
