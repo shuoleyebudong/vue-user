@@ -6,18 +6,18 @@ const request = axios.create({
 })
 
 // 请求拦截
-// request.interceptors.request.use(
-//   (config) => {
-//     // 在请求头提供token
-//     const token = store.getters.token || window.sessionStorage.getItem('token')
-//     if (token) {
-//       config.headers.Authorization = token
-//     }
-//     NProgress.start()
-//     return config
-//   },
-//   (err) => Promise.reject(err)
-// )
+request.interceptors.request.use(
+  (config) => {
+    // 在请求头提供token
+    const token = window.sessionStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = token
+    }
+    // NProgress.start()
+    return config
+  },
+  (err) => Promise.reject(err)
+)
 // 响应拦截
 // request.interceptors.response.use(
 //   (result) => {

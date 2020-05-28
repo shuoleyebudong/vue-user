@@ -14,14 +14,19 @@
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" trigger="click" @command="handleCommand">
           <span class="el-dropdown-link">
-            {{username}}
+            {{ username }}
             <i class="el-icon-caret-bottom"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <a href="https://github.com/shuoleyebudong/vue-user" target="_blank">
+            <a
+              href="https://github.com/shuoleyebudong/vue-user"
+              target="_blank"
+            >
               <el-dropdown-item>项目仓库</el-dropdown-item>
             </a>
-            <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
+            <el-dropdown-item divided command="loginout"
+              >退出登录</el-dropdown-item
+            >
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -29,7 +34,7 @@
     <!-- 主体区域 -->
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside class="sidebar" :width="isCollapse ? '64px':'200px'">
+      <el-aside class="sidebar" :width="isCollapse ? '64px' : '200px'">
         <div class="toggle-button" @click="toggleCollapse">|||</div>
         <el-menu
           class="sidebar-el-menu"
@@ -49,19 +54,25 @@
                   <span slot="title">{{ item.title }}</span>
                 </template>
                 <template v-for="subItem in item.subs">
-                  <el-submenu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
+                  <el-submenu
+                    v-if="subItem.subs"
+                    :index="subItem.index"
+                    :key="subItem.index"
+                  >
                     <template slot="title">{{ subItem.title }}</template>
                     <el-menu-item
-                      v-for="(threeItem,i) in subItem.subs"
+                      v-for="(threeItem, i) in subItem.subs"
                       :key="i"
                       :index="threeItem.index"
-                    >{{ threeItem.title }}</el-menu-item>
+                      >{{ threeItem.title }}</el-menu-item
+                    >
                   </el-submenu>
                   <el-menu-item
                     v-else
                     :index="subItem.index"
                     :key="subItem.index"
-                  >{{ subItem.title }}</el-menu-item>
+                    >{{ subItem.title }}</el-menu-item
+                  >
                 </template>
               </el-submenu>
             </template>
@@ -83,11 +94,17 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   data() {
     return {
       isCollapse: false,
       items: [
+        {
+          icon: "el-icon-user-solid",
+          index: "dashboard",
+          title: "首页"
+        },
         {
           icon: "el-icon-user-solid",
           index: "table",
@@ -107,30 +124,30 @@ export default {
               title: "404页面"
             }
           ]
-        },
-        {
-          icon: "el-icon-user-solid",
-          index: "/donate",
-          title: "支持作者"
         }
       ],
       name: "Fenglei"
     };
   },
+  created() {
+    // 把从vuex 拿到的侧边栏数据 放到 侧边栏中
+    // 如果数据不匹配需要对数据做处理
+    console.log(this.rightList);
+    // this.items = this.rightList
+  },
   computed: {
     onRoutes() {
       return this.$route.path.replace("/", "");
     },
-    username() {
-      let username = sessionStorage.getItem("username");
-      return username ? username : this.name;
-    }
+    ...mapState(["rightList", "username"])
   },
   methods: {
     handleCommand(command) {
       if (command == "loginout") {
-        sessionStorage.removeItem("username");
+        //删除sessionStorage中的数据
+        sessionStorage.clear()        
         this.$router.push("/login");
+        // window.location.reload()
       }
     },
     toggleCollapse() {

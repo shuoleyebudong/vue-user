@@ -17,13 +17,16 @@
           icon="el-icon-plus"
           class="handle-del mr10"
           @click="dialogVisible = true"
-        >添加按钮</el-button>
-        <el-select placeholder="地址" class="handle-select mr10">
-          <el-option key="1" label="广东省" value="广东省"></el-option>
-          <el-option key="2" label="湖南省" value="湖南省"></el-option>
-        </el-select>
+          v-permission="{ action: 'add' }"
+          >添加按钮</el-button
+        >
         <el-input placeholder="用户名" class="handle-input mr10"></el-input>
-        <el-button type="primary" icon="el-icon-search">搜索按钮</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          v-permission="{ action: 'search' }"
+          >搜索按钮</el-button
+        >
       </div>
       <!-- 表格区域 -->
       <el-table class="table" :data="tableData" border>
@@ -49,11 +52,18 @@
       ></el-pagination>
     </el-card>
     <!-- 弹窗区域 -->
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose"
+    >
       <span>这是一段信息</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="dialogVisible = false"
+          >确 定</el-button
+        >
       </span>
     </el-dialog>
   </div>

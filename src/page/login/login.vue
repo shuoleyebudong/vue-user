@@ -6,10 +6,19 @@
         <img src="../../assets/logo.png" alt />
       </div>
       <!-- 登录表单区域 -->
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="0px" class="login_form">
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        label-width="0px"
+        class="login_form"
+      >
         <!-- 用户名 -->
         <el-form-item prop="username">
-          <el-input v-model="form.username" prefix-icon="el-icon-user"></el-input>
+          <el-input
+            v-model="form.username"
+            prefix-icon="el-icon-user"
+          ></el-input>
         </el-form-item>
         <!-- 密码 -->
         <el-form-item prop="password">
@@ -53,21 +62,26 @@ export default {
     };
   },
   methods: {
+    //重置
     resetForm(formRef) {
       this.$refs[formRef].resetFields();
     },
+    //登陆
     login(formRef) {
       this.$refs[formRef].validate(valid => {
         if (!valid) return false;
         loginCheck(this.form.username, this.form.password).then(res => {
-          console.log(res);
           if (res.status !== 200) {
             this.$message({
               message: "警告哦，这是一条警告消息",
               type: "warning"
             });
           } else {
-            sessionStorage.setItem("username", this.form.username);
+            console.log(res);
+            //调用vuex中的setRightList方法，把得到的  侧边栏数据  存储到vuex中
+            // this.$store.commit("setRightList", res.data);
+            this.$store.commit("setUsername", res.data.data.username);
+            this.$store.commit("setToken", res.data.data.token);
             this.$router.push("/home");
             this.$message({
               message: "恭喜你，这是一条成功消息",

@@ -3,13 +3,15 @@ import Router from 'vue-router'
 
 import Login from '../page/login/login.vue'
 import Home from '../page/home/home.vue'
+import Dashboard from '../page/dashboard/dashboard.vue'
 import Table from '../page/table/table.vue'
+
 import NO from '../page/404.vue'
 import NOPower from '../page/401.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -24,12 +26,21 @@ export default new Router({
       path: '/home',
       name: 'home',
       component: Home,
-      redirect: '/table',
+      redirect: '/dashboard',
       children: [
+        {
+          path: '/dashboard',
+          name: 'dashboard',
+          component: Dashboard
+        },
         {
           path: '/table',
           name: 'table',
-          component: Table
+          component: Table,
+          meta: [
+            'add',
+            'search'
+          ]
         },
         {
           path: '/401',
@@ -43,5 +54,24 @@ export default new Router({
         },
       ]
     },
+    {
+      path: '*',
+      component: NO
+    },
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
+    next()
+  } else {
+    const token = sessionStorage.getItem('token')
+    if (!token) {
+      next('/login')
+    } else {
+      next()
+    }
+  }
+})
+
+export default router
