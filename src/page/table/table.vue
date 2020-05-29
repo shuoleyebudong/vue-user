@@ -1,5 +1,5 @@
 <template>
-  <div class="table">
+  <div class="table" v-loading="loading">
     <!-- 面包屑 -->
     <div class="crumbs">
       <el-breadcrumb separator="/">
@@ -16,15 +16,23 @@
           type="primary"
           icon="el-icon-plus"
           class="handle-del mr10"
-          @click="dialogVisible = true"
+          @click="addClick"
           v-permission="{ action: 'add' }"
           >添加按钮</el-button
         >
-        <el-input placeholder="用户名" class="handle-input mr10"></el-input>
+        <el-input
+          placeholder="用户名"
+          class="handle-input mr10"
+          v-model="searchName"
+          clearable
+          @keyup.enter.native="searchCabinet"
+          @clear="clear"
+        ></el-input>
         <el-button
           type="primary"
           icon="el-icon-search"
           v-permission="{ action: 'search' }"
+          @click="searchCabinet"
           >搜索按钮</el-button
         >
       </div>
@@ -34,9 +42,19 @@
         <el-table-column prop="name" label="姓名" width="180"></el-table-column>
         <el-table-column prop="address" label="地址"></el-table-column>
         <el-table-column label="操作">
-          <template>
-            <el-button size="mini">编辑</el-button>
-            <el-button size="mini" type="danger">删除</el-button>
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="editClick(scope.$index, scope.row)"
+              >编辑</el-button
+            >
+            <el-button
+              size="mini"
+              type="danger"
+              @click="deleteClick(scope.$index, scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -45,26 +63,49 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage4"
-        :page-sizes="[100, 200, 300, 400]"
-        :page-size="100"
+        :page-sizes="[10, 20, 30, 50]"
+        :page-size="10"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400"
+        :total="total"
       ></el-pagination>
     </el-card>
-    <!-- 弹窗区域 -->
-    <el-dialog
-      title="提示"
-      :visible.sync="dialogVisible"
-      width="30%"
-      :before-close="handleClose"
-    >
-      <span>这是一段信息</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false"
-          >确 定</el-button
-        >
-      </span>
+    <!-- 添加 弹窗区域 -->
+    <el-dialog title="添加弹出框" :visible.sync="addDialog" width="30%">
+      <el-form
+        :model="addForm"
+        ref="addFormRef"
+        label-width="100px"
+        :rules="rules"
+      >
+        <el-form-item label="用户名称" prop="name">
+          <el-input v-model="addForm.name"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitForm('addFormRef')"
+            >提交</el-button
+          >
+          <el-button @click="resetForm('addFormRef')">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 编辑 弹窗区域 -->
+    <el-dialog title="编辑弹出框" :visible.sync="editDialog" width="30%">
+      <el-form
+        :model="editForm"
+        ref="editFormRef"
+        label-width="100px"
+        :rules="rules"
+      >
+        <el-form-item label="用户名称" prop="name">
+          <el-input v-model="editForm.name"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitForm('editFormRef')"
+            >提交</el-button
+          >
+          <el-button @click="resetForm('editFormRef')">重置</el-button>
+        </el-form-item>
+      </el-form>
     </el-dialog>
   </div>
 </template>
@@ -73,6 +114,11 @@
 export default {
   data() {
     return {
+      loading: false,
+      pageNo: 1, //页数
+      pageSize: 10, // 条数
+      currentPage4: 1, //当前页
+      total: 1, // 总条数
       tableData: [
         {
           date: "2016-05-02",
@@ -94,24 +140,126 @@ export default {
           name: "王小虎",
           address: "上海市普陀区金沙江路 1516 弄"
         }
-      ],
-      currentPage4: 4,
-      dialogVisible: false
+      ], // 主表格数据
+      searchName: "",
+      addDialog: false, // 控制   添加   弹出框的显示隐藏
+      editDialog: false, // 控制   编辑   弹出框的显示隐藏
+      addForm: {
+        name: ""
+      }, // 添加   表单的数据
+      editForm: {
+        name: ""
+      }, // 编辑  表单的数据
+      rules: {
+        name: [{ required: true, message: "请输入权限名称", trigger: "blur" }],
+        sort: [
+          { required: true, message: "请输入权限排序", trigger: "blur" },
+          { type: "number", message: "权限排序必须为数字值" }
+        ]
+      } // 表单验证
     };
   },
   methods: {
+    // 每页多少条
     handleSizeChange(val) {
+      this.pageSize = val;
       console.log(`每页 ${val} 条`);
     },
+    // 第几页
     handleCurrentChange(val) {
+      this.pageNo = val;
       console.log(`当前页: ${val}`);
     },
-    handleClose(done) {
-      this.$confirm("确认关闭？")
-        .then(_ => {
-          done();
+    // 表单提交
+    submitForm(formName) {
+      this.$refs[formName].validate(valid => {
+        // 判断表单是否有值
+        if (valid) {
+          //判断是否是添加权限  创建商户信息
+          if (formName == "addFormRef") {
+            this.addFromSubmit();
+          }
+          if (formName == "editFormRef") {
+            this.editFromSubmit();
+          }
+        } else {
+          this.$message({
+            message: "请确认您的信息是否填写完整",
+            type: "warning",
+            center: true,
+            duration: 1000
+          });
+          return false;
+        }
+      });
+    },
+    // 重置表单
+    resetForm(formName) {
+      if (formName == "addFormRef") {
+        this.$refs[formName].resetFields();
+        this.addDialog = false;
+      }
+      if (formName == "editFormRef") {
+        this.$refs[formName].resetFields();
+        this.editDialog = false;
+      }
+    },
+    //点击  添加  按钮
+    addClick() {
+      this.addDialog = true;
+    },
+    // 添加功能提交
+    addFromSubmit() {
+      this.addDialog = false;
+      console.log(this.addForm.name);
+    },
+    //点击  编辑  按钮
+    editClick(index, row) {
+      this.editDialog = true;
+    },
+    // 编辑功能提交
+    editFromSubmit() {
+      this.editDialog = false;
+      console.log(this.editForm.name);
+    },
+    //点击  删除  按钮
+    deleteClick(index, row) {
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$message({
+            type: "success",
+            message: "删除成功"
+          });
         })
-        .catch(_ => {});
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    //点击  搜索  按钮
+    searchCabinet() {
+      this.loading = true;
+      this.$message({
+        type: "success",
+        message: "搜索成功"
+      });
+      setTimeout(() => {
+        this.loading = false;
+      }, 1000);
+    },
+    //清空搜索框
+    clear() {
+      this.$message({
+        type: "success",
+        message: "重置成功"
+      });
+      this.searchName = "";
     }
   }
 };

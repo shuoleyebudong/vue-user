@@ -42,6 +42,8 @@
 
 <script>
 import { loginCheck } from "../../network/login";
+import { initDynamicRoute } from "../../router/index.js";
+
 export default {
   data() {
     return {
@@ -82,6 +84,10 @@ export default {
             // this.$store.commit("setRightList", res.data);
             this.$store.commit("setUsername", res.data.data.username);
             this.$store.commit("setToken", res.data.data.token);
+
+            // 根据用户所具备的权限动态添加路由
+            // initDynamicRoute();
+
             this.$router.push("/home");
             this.$message({
               message: "恭喜你，这是一条成功消息",
