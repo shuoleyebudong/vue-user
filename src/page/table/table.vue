@@ -20,28 +20,46 @@
           v-permission="{ action: 'add' }"
           >添加按钮</el-button
         >
-        <el-input
-          placeholder="用户名"
-          class="handle-input mr10"
-          v-model="searchName"
-          clearable
-          @keyup.enter.native="searchCabinet"
-          @clear="clear"
-        ></el-input>
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          v-permission="{ action: 'search' }"
-          @click="searchCabinet"
-          >搜索按钮</el-button
-        >
+        <div>
+          <el-input
+            placeholder="用户名"
+            class="handle-input mr10"
+            v-model="searchName"
+            clearable
+            @keyup.enter.native="searchCabinet"
+            @clear="clear"
+          ></el-input>
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            v-permission="{ action: 'search' }"
+            @click="searchCabinet"
+            >搜索按钮</el-button
+          >
+        </div>
       </div>
       <!-- 表格区域 -->
       <el-table class="table" :data="tableData" border>
-        <el-table-column prop="date" label="日期" width="180"></el-table-column>
-        <el-table-column prop="name" label="姓名" width="180"></el-table-column>
-        <el-table-column prop="address" label="地址"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column
+          prop="date"
+          label="日期"
+          width="180"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="name"
+          label="姓名"
+          width="180"
+          align="center"
+        ></el-table-column>
+        <el-table-column
+          prop="address"
+          label="地址"
+          width="300"
+          align="center"
+          :show-overflow-tooltip="true"
+        ></el-table-column>
+        <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -128,7 +146,8 @@ export default {
         {
           date: "2016-05-04",
           name: "王小虎",
-          address: "上海市普陀区金沙江路 1517 弄"
+          address:
+            "上海市普陀区金沙江路 1517 弄111111111111111111111111111111111111111111111111111111111111111111111111111"
         },
         {
           date: "2016-05-01",
@@ -274,6 +293,8 @@ export default {
 }
 .handle-box {
   margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
   .handle-select {
     width: 120px;
   }
